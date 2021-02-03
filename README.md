@@ -18,16 +18,16 @@ Creación, puesta en marcha y coordinación de hilos.
 
 3. Lo que se le ha pedido es: debe modificar la aplicación de manera que cuando hayan transcurrido 5 segundos desde que se inició la ejecución, se detengan todos los hilos y se muestre el número de primos encontrados hasta el momento. Luego, se debe esperar a que el usuario presione ENTER para reanudar la ejecución de los mismo.
 
-![](./img/Imagen_1.JPEG)
-![](./img/Imagen_2.JPEG)
-![](./img/Imagen_3.JPEG)
-![](./img/Imagen_4.JPEG)
-![](./img/Imagen_5.JPEG)
-![](./img/Imagen_6.JPEG)
-![](./img/Imagen_7.JPEG)
-![](./img/Imagen_8.JPEG)
-![](./img/Imagen_9.JPEG)
-![](./img/Imagen_10.JPEG)
+![](./img/Imagen_1.jpeg)
+![](./img/Imagen_2.jpeg)
+![](./img/Imagen_3.jpeg)
+![](./img/Imagen_4.jpeg)
+![](./img/Imagen_5.jpeg)
+![](./img/Imagen_6.jpeg)
+![](./img/Imagen_7.jpeg)
+![](./img/Imagen_8.jpeg)
+![](./img/Imagen_9.jpeg)
+![](./img/Imagen_10.jpeg)
 
 
 ### Parte II 
@@ -226,20 +226,20 @@ public class MainCanodromo {
 ```
 
 
-###Funcionamiento
+### Funcionamiento
 
 Es posible evidenciar en las siguientes imagenes como inicia la aplicación:
 
-![](inicio.PNG)
+![](./img/inicio.PNG)
 
 
 posteriormente al pausar la carrera de Galgos:
 
-![](pause.PNG)
+![](./img/pause.PNG)
 
 y por ultimo de la partida en el momento que continuo la carrera de Galgos:
 
-![](continuar.PNG)
+![](./img/continuar.PNG)
 
 
 La salida de la anterior prueba de funcionamiento como prueba de aceptacion arrojo la siguiente salida, donde es posible evidenciar que no tiene ninguna inconsistencia en cuanto a los puestos en los cuales clasificaba cada Galgo:
@@ -269,6 +269,9 @@ La salida de la anterior prueba de funcionamiento como prueba de aceptacion arro
 ```
 
 
+Para finalmente verse de la siguiente manera: 
+
+![](./img/final.PNG)
 
 ## Control de versiones
 
@@ -279,7 +282,7 @@ por:
 Version: 1.0
 Fecha: 02 de febrero 2021
 
-###Autores
+### Autores
 
 * **Santiago Buitrago** - *Laboratorio N°2* - [DonSantiagoS](https://github.com/DonSantiagoS)
 * **Steven Garzon** - *Laboratorio N°2* - [stevengarzon7](https://github.com/stevengarzon7)
