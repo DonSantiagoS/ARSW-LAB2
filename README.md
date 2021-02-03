@@ -18,16 +18,16 @@ Creación, puesta en marcha y coordinación de hilos.
 
 3. Lo que se le ha pedido es: debe modificar la aplicación de manera que cuando hayan transcurrido 5 segundos desde que se inició la ejecución, se detengan todos los hilos y se muestre el número de primos encontrados hasta el momento. Luego, se debe esperar a que el usuario presione ENTER para reanudar la ejecución de los mismo.
 
-![](./img/Imagen (1).JPEG)
-![](./img/Imagen (2).JPEG)
-![](./img/Imagen (3).JPEG)
-![](./img/Imagen (4).JPEG)
-![](./img/Imagen (5).JPEG)
-![](./img/Imagen (6).JPEG)
-![](./img/Imagen (7).JPEG)
-![](./img/Imagen (8).JPEG)
-![](./img/Imagen (9).JPEG)
-![](./img/Imagen (10).JPEG)
+![](./img/Imagen_1.JPEG)
+![](./img/Imagen_2.JPEG)
+![](./img/Imagen_3.JPEG)
+![](./img/Imagen_4.JPEG)
+![](./img/Imagen_5.JPEG)
+![](./img/Imagen_6.JPEG)
+![](./img/Imagen_7.JPEG)
+![](./img/Imagen_8.JPEG)
+![](./img/Imagen_9.JPEG)
+![](./img/Imagen_10.JPEG)
 
 
 ### Parte II 
@@ -73,4 +73,222 @@ Parte III
     cuando se haga clic en ‘Stop’, todos los hilos de los galgos
     deberían dormirse, y cuando se haga clic en ‘Continue’ los mismos
     deberían despertarse y continuar con la carrera. Diseñe una solución que permita hacer esto utilizando los mecanismos de sincronización con las primitivas de los Locks provistos por el lenguaje (wait y notifyAll).
+
+Finalmente se modifico la clase Galgo quedando de la siguiente manera, donde se realiza la modificacion del metodo corre quedado de la siguiente forma:
+
+```
+public void corra() throws InterruptedException {
+		while (paso < carril.size()) {
+			if (activo==true) {
+				synchronized (this){
+					wait();
+					activo=false;
+				}
+			}
+			Thread.sleep(100);
+			carril.setPasoOn(paso++);
+			carril.displayPasos(paso);
+			if (paso == carril.size()) {
+				carril.finish();
+				synchronized (regl) {
+					int ubicacion = regl.getUltimaPosicionAlcanzada();
+					regl.setUltimaPosicionAlcanzada(ubicacion + 1);
+					System.out.println("El galgo " + this.getName() + " llego en la posicion " + ubicacion);
+					if (ubicacion == 1) {
+						regl.setGanador(this.getName());
+					}
+				}
+
+			}
+		}
+	}
+```
+
+Ademas de esto se realizo la implementacion de los metodos **Continuar** y **Stoped**, en los cuales se realizo la funcion requerida de valga la redundancia de pausar la carrera de Galgos con stoped y de continuar las veces que sea necesario con Continuar, estas quedaron de la siguiente manera:
+
+```
+	public void stoped() {
+		activo=true;
+	}
+
+	public void continuar() {
+		synchronized (this){
+			notifyAll();
+		}
+	}
+}
+```
+
+Bajo la implementacion y correcion basada en el punto III solicitada, se modifico igualmente la clase **MainCanodromo** la cual quedo de la siguiente manera:
+
+```
+package arsw.threads;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+
+public class MainCanodromo {
+
+    private static Galgo[] galgos;
+
+    private static Canodromo can;
+
+    private static RegistroLlegada reg = new RegistroLlegada();
+
+    public static void main(String[] args) {
+        can = new Canodromo(17, 100);
+        galgos = new Galgo[can.getNumCarriles()];
+        can.setVisible(true);
+
+        //Acción del botón start
+        can.setStartAction(
+                new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(final ActionEvent e) {
+						//como acción, se crea un nuevo hilo que cree los hilos
+                        //'galgos', los pone a correr, y luego muestra los resultados.
+                        //La acción del botón se realiza en un hilo aparte para evitar
+                        //bloquear la interfaz gráfica.
+                        ((JButton) e.getSource()).setEnabled(false);
+                        for (int i = 0; i < can.getNumCarriles(); i++) {
+                            //crea los hilos 'galgos'
+                            galgos[i] = new Galgo(can.getCarril(i), "" + i, reg);
+                        }
+                        new Thread() {
+                            public void run() {
+                                synchronized (this) {
+                                    for (int i = 0; i < can.getNumCarriles(); i++) {
+                                        //Inicia los hilos
+                                        galgos[i].start();
+                                    }
+                                }
+                            }
+                        }.start();
+
+                        new Thread() {
+                            public void run() {
+                                synchronized (this) {
+                                    for (int i = 0; i < can.getNumCarriles(); i++) {
+                                        try {
+                                            galgos[i].join();
+                                        } catch (InterruptedException interruptedException) {
+                                            interruptedException.printStackTrace();
+                                        }
+                                    }
+                                    can.winnerDialog(reg.getGanador(),reg.getUltimaPosicionAlcanzada() - 1);
+                                    System.out.println("El ganador fue:" + reg.getGanador());
+                                }
+
+
+                            }
+
+                        }.start();
+
+
+
+
+
+                    }
+                }
+        );
+
+        can.setStopAction(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        for (int i = 0; i < can.getNumCarriles(); i++) {
+                            galgos[i].stoped();
+                        }
+                        System.out.println("Carrera pausada!");
+                    }
+                }
+        );
+
+        can.setContinueAction(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        for (int i = 0; i < can.getNumCarriles(); i++) {
+                            galgos[i].continuar();
+                        }
+                        System.out.println("Carrera reanudada!");
+                    }
+                }
+        );
+
+    }
+
+}
+
+```
+
+
+###Funcionamiento
+
+Es posible evidenciar en las siguientes imagenes como inicia la aplicación:
+
+![](inicio.PNG)
+
+
+posteriormente al pausar la carrera de Galgos:
+
+![](pause.PNG)
+
+y por ultimo de la partida en el momento que continuo la carrera de Galgos:
+
+![](continuar.PNG)
+
+
+La salida de la anterior prueba de funcionamiento como prueba de aceptacion arrojo la siguiente salida, donde es posible evidenciar que no tiene ninguna inconsistencia en cuanto a los puestos en los cuales clasificaba cada Galgo:
+
+```
+		Carrera pausada!
+		Carrera reanudada!
+		El galgo 13 llego en la posicion 1
+		El galgo 15 llego en la posicion 2
+		El galgo 16 llego en la posicion 3
+		El galgo 10 llego en la posicion 4
+		El galgo 2 llego en la posicion 5
+		El galgo 12 llego en la posicion 6
+		El galgo 1 llego en la posicion 7
+		El galgo 4 llego en la posicion 8
+		El galgo 5 llego en la posicion 9
+		El galgo 14 llego en la posicion 10
+		El galgo 11 llego en la posicion 11
+		El galgo 8 llego en la posicion 12
+		El galgo 7 llego en la posicion 13
+		El galgo 9 llego en la posicion 14
+		El galgo 0 llego en la posicion 15
+		El galgo 6 llego en la posicion 16
+		El galgo 3 llego en la posicion 17
+		El ganador fue:13
+
+```
+
+
+
+## Control de versiones
+
+por: 
++ [Santiago Buitrago](https://github.com/DonSantiagoS) 
++ [Steven Garzon](https://github.com/stevengarzon7) 
+
+Version: 1.0
+Fecha: 02 de febrero 2021
+
+###Autores
+
+* **Santiago Buitrago** - *Laboratorio N°2* - [DonSantiagoS](https://github.com/DonSantiagoS)
+* **Steven Garzon** - *Laboratorio N°2* - [stevengarzon7](https://github.com/stevengarzon7)
+
+## Licencia 
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
+## Agradecimientos
+
+* Persistencia en lograr el objetivo
 
